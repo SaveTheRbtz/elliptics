@@ -243,7 +243,7 @@ static int blob_read_ll(struct eblob_backend_config *c, void *state,
 		/* data is compressed */
 
 		size = 0;
-		err = eblob_read_data_ex(b, &key, io->offset, &read_data, &size, io->type, elist);
+		err = eblob_read_data(b, &key, io->offset, &read_data, &size, io->type);
 		if (err) {
 			dnet_backend_log(DNET_LOG_ERROR, "%s: EBLOB: blob-read-data: READ: %d: %s\n",
 				dnet_dump_id_str(io->id), err, strerror(-err));
