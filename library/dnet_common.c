@@ -2273,9 +2273,10 @@ static int dnet_iterator_response_cmp(const void *r1, const void *r2)
  */
 int dnet_iterator_response_container_sort(int fd, size_t size)
 {
-	struct dnet_map_fd map = { .fd = fd, .size = size };
 	const ssize_t resp_size = sizeof(struct dnet_iterator_response);
 	const size_t nel = size / resp_size;
+	const size_t tmp_size = size + 8;
+	struct dnet_map_fd map = { .fd = fd, .size = size + tmp_size };
 	int err;
 
 	/* Sanity */
@@ -2284,20 +2285,31 @@ int dnet_iterator_response_container_sort(int fd, size_t size)
 	if (size % resp_size != 0)
 		return -EINVAL;
 
-	/* If size is zero - it's already sorted */
-	if (size == 0)
+	/* If size is one or zero - it's already sorted */
+	if (size <= 1)
 		return 0;
 
-	posix_fadvise(fd, 0, 0, POSIX_FADV_WILLNEED);
+	(void)posix_fadvise(fd, 0, 0, POSIX_FADV_WILLNEED);
+
+	/* Allocate temp space for mergesort */
+	err = ftruncate(fd, map.size);
+	if (err == -1) {
+		err = -errno;
+		goto err_out_exit;
+	}
 
 	if ((err = dnet_data_map_rw(&map)) != 0)
-		return err;
-	qsort(map.data, nel, resp_size, dnet_iterator_response_cmp);
+		goto err_out_exit;
+	err = dnet_mergesort(map.data, nel, resp_size,
+			dnet_iterator_response_cmp, map.data + size, tmp_size);
 	dnet_data_unmap(&map);
 
-	posix_fadvise(fd, 0, 0, POSIX_FADV_SEQUENTIAL);
+	(void)posix_fadvise(fd, 0, 0, POSIX_FADV_SEQUENTIAL);
 
-	return 0;
+err_out_exit:
+	/* Deallocate temp space */
+	(void)ftruncate(fd, size);
+	return err;
 }
 
 /*!
