@@ -628,22 +628,13 @@ static inline int dnet_time_cmp(const struct dnet_time *t1, const struct dnet_ti
 
 /*
  * Compare two IDs.
- * Returns  1 when id1 > id2
- *         -1 when id1 < id2
- *          0 when id1 = id2
+ * Returns  > 0 when id1 > id2
+ *          < 0 when id1 < id2
+ *          = 0 when id1 = id2
  */
 static inline int dnet_id_cmp_str(const unsigned char *id1, const unsigned char *id2)
 {
-	unsigned int i = 0;
-
-	for (i*=sizeof(unsigned long); i<DNET_ID_SIZE; ++i) {
-		if (id1[i] < id2[i])
-			return -1;
-		if (id1[i] > id2[i])
-			return 1;
-	}
-
-	return 0;
+	return memcmp(id1, id2, DNET_ID_SIZE);
 }
 static inline int dnet_id_cmp(const struct dnet_id *id1, const struct dnet_id *id2)
 {
