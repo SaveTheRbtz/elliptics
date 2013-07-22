@@ -640,7 +640,7 @@ static inline int dnet_id_cmp(const struct dnet_id *id1, const struct dnet_id *i
 {
 	if (id1->group_id < id2->group_id)
 		return -1;
-	if (id1->group_id > id2->group_id)
+	else if (id1->group_id > id2->group_id)
 		return 1;
 
 	return dnet_id_cmp_str(id1->id, id2->id);
