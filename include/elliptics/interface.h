@@ -623,17 +623,7 @@ int dnet_stat_local(struct dnet_net_state *st, struct dnet_id *id);
  */
 static inline int dnet_time_cmp(const struct dnet_time *t1, const struct dnet_time *t2)
 {
-	if (t1->tsec < t2->tsec)
-		return -1;
-	else if (t1->tsec > t2->tsec)
-		return 1;
-
-	if (t1->tnsec < t2->tnsec)
-		return -1;
-	else if (t1->tnsec > t2->tnsec)
-		return 1;
-
-	return 0;
+	return memcmp(t1, t2, sizeof(struct dnet_time));
 }
 
 /*
