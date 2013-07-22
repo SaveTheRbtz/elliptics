@@ -69,6 +69,14 @@ if (UNIX OR MINGW)
     add_definitions(-W -Wall -Wextra -fstack-protector-all -fno-strict-aliasing -g)
 endif()
 
+# GCC's builtin memcmp is slower than libc's
+# See: http://gcc.gnu.org/bugzilla/show_bug.cgi?id=43052
+if ("${CMAKE_C_COMPILER_ID}" STREQUAL "GNU")
+    add_definitions(
+        -fno-builtin-memcmp
+    )
+endif ("${CMAKE_C_COMPILER_ID}" STREQUAL "GNU")
+
 # Check for threads
 if (UNIX AND BSD)
     set(CMAKE_THREAD_LIBS -pthread)
