@@ -70,8 +70,7 @@ class IteratorResult(object):
         """
         Computes diff between two sorted results. Returns container that consists of difference.
         """
-        import hashlib
-        filename = 'diff_' + hashlib.sha256(str(self.address)).hexdigest() + '-' + hashlib.sha256(str(other.address)).hexdigest()
+        filename = 'diff_' + self.address.hash() + '-' + other.address.hash()
         diff_container = IteratorResult.from_filename(filename,
                                                       address=other.address,
                                                       tmp_dir=self.tmp_dir

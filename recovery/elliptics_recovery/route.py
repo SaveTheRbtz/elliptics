@@ -11,6 +11,7 @@ from operator import attrgetter, itemgetter
 
 from .utils.misc import logged_class
 from .range import IdRange, RecoveryRange, AddressRanges
+from hashlib import sha256
 
 import sys
 sys.path.insert(0, "bindings/python/") # XXX
@@ -76,6 +77,10 @@ class Address(object):
 
     def __ne__(self, other):
         return not self.__eq__(other)
+
+    def hash(self):
+        """Returns hashed representation of Address"""
+        return sha256(str(self)).hexdigest()
 
     def __getitem__(self, item):
         return tuple(self)[item]
